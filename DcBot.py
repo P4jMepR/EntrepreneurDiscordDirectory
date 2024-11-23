@@ -8,7 +8,7 @@ load_dotenv(".env")
 
 bot = commands.Bot(command_prefix='', self_bot=True, chunk_guilds_at_startup=False)
 
-ALLOWED_CHANNEL_IDS = [1259935421194960968, 1268207657207206010]
+ALLOWED_CHANNEL_IDS = [1259935421194960968, 1268207657207206010] # 1259935421194960968 - #Furlough main / general, 1268207657207206010 - #Quantum's bot-testing
 LOGS_FILE = 'logs.json'
 
 def save_detection_data(data):
