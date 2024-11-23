@@ -5,7 +5,7 @@ import os
 
 load_dotenv(".env")
 
-bot = commands.Bot(self_bot=True, chunk_guilds_at_startup=False)
+bot = commands.Bot(command_prefix='', self_bot=True, chunk_guilds_at_startup=False)
 
 ALLOWED_CHANNEL_IDS = [1268207657207206010]
 LOGS_FILE = 'logs.json'
