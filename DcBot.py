@@ -1,5 +1,10 @@
 import discord, json, re, datetime
 from discord.ext import commands
+from dotenv import load_dotenv
+import os
+
+# Load environment variables
+load_dotenv()
 
 bot = commands.Bot(command_prefix='>', self_bot=True, chunk_guilds_at_startup=False)
 
@@ -59,7 +64,10 @@ async def on_message(message):
         print(f"Error in on_message: {e}")
 
 try:
-    token = ''.strip()
-    bot.run(token, bot=False)
+    # Get token from environment variables
+    token = os.getenv('DISCORD_TOKEN')
+    if not token:
+        raise ValueError("No token found in .env file")
+    bot.run(token.strip(), bot=False)
 except Exception as e:
     print(f"Failed to start bot: {e}")
