@@ -1,4 +1,5 @@
 import json, datetime, requests
+import re
 from discord.ext import commands
 from dotenv import load_dotenv
 import os
@@ -7,7 +8,7 @@ load_dotenv(".env")
 
 bot = commands.Bot(command_prefix='', self_bot=True, chunk_guilds_at_startup=False)
 
-ALLOWED_CHANNEL_IDS = [1268207657207206010]
+ALLOWED_CHANNEL_IDS = [1259935421194960968, 1268207657207206010]
 LOGS_FILE = 'logs.json'
 
 def save_detection_data(data):
@@ -31,6 +32,10 @@ def has_user_been_logged(user_id):
             return any(isinstance(entry, dict) and entry.get('user_id') == user_id for entry in all_data)
     except (FileNotFoundError, json.JSONDecodeError):
         return False
+
+def extract_links(text):
+    url_pattern = r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+'
+    return re.findall(url_pattern, text)
 
 @bot.event
 async def on_ready():
@@ -62,20 +67,24 @@ async def on_message(message):
             try:
                 bio = (profile.get('user', {}).get('bio') or 
                       profile.get('user_profile', {}).get('bio') or 
-                  profile.get('guild_member', {}).get('bio') or 
-                  profile.get('guild_member_profile', {}).get('bio') or '')
+                      profile.get('guild_member', {}).get('bio') or 
+                      profile.get('guild_member_profile', {}).get('bio') or '')
             except Exception as e:
                 bio = ''
+
+            links = extract_links(bio)
 
             user_data = {
                 'user_id': message.author.id,
                 'username': str(message.author).split("#")[0],
                 'bio': bio,
+                'links': links,
                 'date_first_message': datetime.datetime.now().isoformat()
             }
             save_detection_data(user_data)
             print(f"Logged new user: {user_data['username']}")
             print(f"Bio: {user_data['bio']}")
+            print(f"Links found: {user_data['links']}")
     except Exception as e:
         print(f"Error in on_message: {e}")
 
