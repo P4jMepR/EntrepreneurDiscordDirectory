@@ -3,8 +3,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 import os
 
-# Load environment variables
-load_dotenv()
+load_dotenv(".env")
 
 bot = commands.Bot(command_prefix='>', self_bot=True, chunk_guilds_at_startup=False)
 
