@@ -22,7 +22,19 @@ users_collection = db['users']
 bot = commands.Bot(command_prefix='', self_bot=True, chunk_guilds_at_startup=False)
 
 ALLOWED_CHANNEL_IDS = [1259935421194960968, 1268207657207206010] # First - #Furlough main / general, Second - #Quantum's bot-testing
-LOGS_FILE = 'logs.json'
+
+IGNORED_DOMAINS = {
+    'linkedin.com',
+    # 'github.com',
+    'twitter.com',
+    'x.com',
+    'instagram.com',
+    'facebook.com',
+    'youtube.com',
+    'medium.com',
+    'discord.gg',
+    'discord.com'
+}
 
 async def get_screenshot(url):
     try:
@@ -112,8 +124,22 @@ def has_user_been_logged(user_id):
         return False
 
 async def extract_links(text):
-    url_pattern = r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+'
-    return re.findall(url_pattern, text)
+    # Updated pattern to capture full profile URLs
+    url_pattern = r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+(?:/[-\w.~!$&\'()*+,;=:@%]*)*/?'
+    links = re.findall(url_pattern, text)
+    
+    # Filter out URLs from ignored domains
+    filtered_links = []
+    for link in links:
+        should_include = True
+        for ignored_domain in IGNORED_DOMAINS:
+            if ignored_domain in link.lower():
+                should_include = False
+                break
+        if should_include:
+            filtered_links.append(link)
+    
+    return filtered_links
 
 @bot.event
 async def on_ready():
