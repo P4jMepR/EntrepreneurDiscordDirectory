@@ -18,7 +18,6 @@ import image_3_getitright from "~/assets/images/screens/3_getitright.png";
 import image_4_goodwatch from "~/assets/images/screens/4_goodwatch.png";
 import { db } from "~/utils/db.server";
 
-// Add type definitions for our data
 type Link = {
 	url: string;
 	img?: string | null;
@@ -34,7 +33,6 @@ type User = {
 	updatedAt: string;
 };
 
-// Add interface for MongoDB user document
 interface MongoUser {
 	_id: ObjectId;
 	username: string;
@@ -47,7 +45,6 @@ interface MongoUser {
 	created_at: Date;
 }
 
-// Add this function at the top of the file, after the imports
 function getRelativeDate(date: Date): string {
 	const now = new Date();
 	const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -179,7 +176,6 @@ const mockData = [
 	},
 ];
 
-// Add loader function to fetch data from MongoDB
 export const loader: LoaderFunction = async () => {
 	try {
 		const client = db;
@@ -194,7 +190,7 @@ export const loader: LoaderFunction = async () => {
 			}
 		}).toArray();
 
-		// Transform MongoDB data to match our frontend format
+		// Transform MongoDB data to match frontend format
 		const dbUsers: User[] = users.map((user: MongoUser) => ({
 			id: user._id.toString(),
 			displayName: user.display_name,
@@ -219,7 +215,6 @@ export const loader: LoaderFunction = async () => {
 	}
 };
 
-// Update the component to use the loader data
 export const Index = () => {
 	const { users } = useLoaderData<{ users: User[] }>();
 

@@ -10,7 +10,6 @@ load_dotenv("../.env")
 screenshots_api_key = os.getenv('TOKEN_SCREENSHOT_API')
 discord_token = os.getenv('DISCORD_TOKEN')
 
-# Update MongoDB connection logic
 if os.getenv('MONGO_USERNAME') and os.getenv('MONGO_PASSWORD'):
     MONGO_URI = f"mongodb://{os.getenv('MONGO_USERNAME')}:{os.getenv('MONGO_PASSWORD')}@{os.getenv('MONGO_HOST')}:{os.getenv('MONGO_PORT')}"
 else:
@@ -53,7 +52,7 @@ async def get_screenshot(url):
             image_data = base64.b64decode(base64_png)
             image = Image.open(BytesIO(image_data))
             
-            # Create WebP
+            # Transform PNG into WebP
             webp_buffer = BytesIO()
             image.save(webp_buffer, format='WEBP', quality=80, optimize=True)
             webp_base64 = base64.b64encode(webp_buffer.getvalue()).decode('utf-8')
@@ -70,7 +69,7 @@ async def get_screenshot(url):
 
 async def save_detection_data(data):
     try:
-        # Extract role if display name contains "|"
+        # Extract role if "|" is in display name
         display_name = data['display_name']
         role = ""
         if '|' in display_name:
@@ -164,8 +163,8 @@ async def on_message(message):
             
             await save_detection_data(user_data)
             print(f"Logged new user: {user_data['username']} ({user_data['display_name']})")
-            print(f"Bio: {user_data['bio']}")
-            print(f"Links found: {user_data['links']}")
+            # print(f"Bio: {user_data['bio']}")
+            # print(f"Links found: {user_data['links']}")
 
     except Exception as e:
         print(f"Error in on_message: {e}")
