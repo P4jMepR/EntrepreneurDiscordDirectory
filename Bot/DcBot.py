@@ -10,11 +10,12 @@ load_dotenv("../.env")
 screenshots_api_key = os.getenv('TOKEN_SCREENSHOT_API')
 discord_token = os.getenv('DISCORD_TOKEN')
 
+# Update MongoDB connection logic
+if os.getenv('MONGO_USERNAME') and os.getenv('MONGO_PASSWORD'):
+    MONGO_URI = f"mongodb://{os.getenv('MONGO_USERNAME')}:{os.getenv('MONGO_PASSWORD')}@{os.getenv('MONGO_HOST')}:{os.getenv('MONGO_PORT')}"
+else:
+    MONGO_URI = "mongodb://localhost:27017"
 
-
-
-MONGO_URI = f"mongodb://{os.getenv('MONGO_USERNAME')}:{os.getenv('MONGO_PASSWORD')}@{os.getenv('MONGO_HOST')}:{os.getenv('MONGO_PORT')}"
-# MONGO_URI = "mongodb://localhost:27017"
 client = MongoClient(MONGO_URI)
 db = client['furlough']
 users_collection = db['users']

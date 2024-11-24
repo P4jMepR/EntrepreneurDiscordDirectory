@@ -1,4 +1,14 @@
 import { MongoClient } from "mongodb";
+import * as dotenv from "dotenv";
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+
+// Get the directory path in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load .env from parent directory (3 levels up from utils/db.server.ts)
+dotenv.config({ path: resolve(__dirname, '../../../.env') });
 
 // Build the connection string based on environment variables
 const MONGO_URI = process.env.MONGO_USERNAME && process.env.MONGO_PASSWORD
