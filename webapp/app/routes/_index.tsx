@@ -1,4 +1,7 @@
-import type { MetaFunction } from "@remix-run/node";
+import type { MetaFunction, LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+import { MongoClient, ObjectId } from "mongodb";
 import {
 	Card,
 	CardContent,
@@ -13,6 +16,35 @@ import image_2_quantumhire from "~/assets/images/screens/2_quantumhire.png";
 import image_2_zynex from "~/assets/images/screens/2_zynex.png";
 import image_3_getitright from "~/assets/images/screens/3_getitright.png";
 import image_4_goodwatch from "~/assets/images/screens/4_goodwatch.png";
+import { db } from "~/utils/db.server";
+
+// Add type definitions for our data
+type Link = {
+	url: string;
+	img?: string | null;
+};
+
+type User = {
+	id: string | number;
+	displayName: string;
+	username: string;
+	avatar: string;
+	bio: string;
+	links: Link[];
+	updatedAt: string;
+};
+
+// Add interface for MongoDB user document
+interface MongoUser {
+	_id: ObjectId;
+	username: string;
+	bio: string;
+	links: Array<{
+		url: string;
+		screenshot?: string;
+	}>;
+	created_at: Date;
+}
 
 export const meta: MetaFunction = () => {
 	return [
@@ -24,14 +56,22 @@ export const meta: MetaFunction = () => {
 const mockData = [
 	{
 		id: 1,
-		displayName: "Kirilo | CEO and Product Design",
-		username: "kirillspraev",
+		displayName: "Alper | Web Engineer",
+		username: "alp82",
 		avatar: "",
-		bio: "https://andmerge.com/",
+		bio:
+			"Creator of https://goodwatch.app/\n" +
+			"\n" +
+			"https://discord.gg/TVAcrfQzcA\n" +
+			"Happy to welcome you on the Discord",
 		links: [
 			{
-				url: "https://andmerge.com/",
-				img: image_1_andmerge,
+				url: "https://goodwatch.app/",
+				img: image_4_goodwatch,
+			},
+			{
+				url: "https://discord.gg/TVAcrfQzcA",
+				img: null,
 			},
 		],
 		updatedAt: "today",
@@ -62,7 +102,7 @@ const mockData = [
 		updatedAt: "today",
 	},
 	{
-		id: 3,
+		id: 4,
 		displayName: "Mohit | UX Audit",
 		username: "tatermohit",
 		avatar: "",
@@ -85,23 +125,15 @@ const mockData = [
 		updatedAt: "today",
 	},
 	{
-		id: 4,
-		displayName: "Alper | Web Engineer",
-		username: "alp82",
+		id: 3,
+		displayName: "Kirilo | CEO and Product Design",
+		username: "kirillspraev",
 		avatar: "",
-		bio:
-			"Creator of https://goodwatch.app/\n" +
-			"\n" +
-			"https://discord.gg/TVAcrfQzcA\n" +
-			"Happy to welcome you on the Discord",
+		bio: "https://andmerge.com/",
 		links: [
 			{
-				url: "https://goodwatch.app/",
-				img: image_4_goodwatch,
-			},
-			{
-				url: "https://discord.gg/TVAcrfQzcA",
-				img: null,
+				url: "https://andmerge.com/",
+				img: image_1_andmerge,
 			},
 		],
 		updatedAt: "today",
@@ -130,12 +162,46 @@ const mockData = [
 	},
 ];
 
+// Add loader function to fetch data from MongoDB
+export const loader: LoaderFunction = async () => {
+	try {
+		const client = db;
+		await client.connect();
+		
+		const database = client.db('furlough');
+		const users = await database.collection<MongoUser>('users').find({}).toArray();
+
+		// Transform MongoDB data to match our frontend format
+		const dbUsers: User[] = users.map((user: MongoUser) => ({
+			id: user._id.toString(),
+			displayName: user.username,
+			username: user.username,
+			avatar: "",
+			bio: user.bio,
+			links: user.links?.map(link => ({
+				url: link.url,
+				img: link.screenshot ? `data:image/webp;base64,${link.screenshot}` : null,
+			})) ?? [],
+			updatedAt: user.created_at.toLocaleDateString()
+		}));
+
+		// Combine mockData with database data
+		const allUsers = [...mockData, ...dbUsers];
+		return json({ users: allUsers });
+	} catch (error) {
+		console.error("Failed to fetch users:", error);
+		return json({ users: mockData });
+	}
+};
+
+// Update the component to use the loader data
 export const Index = () => {
+	const { users } = useLoaderData<{ users: User[] }>();
+
 	return (
 		<main className="flex flex-col gap-8 py-4 px-8">
-			{/*<Button>test</Button>*/}
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-				{mockData.map((item) => (
+				{users.map((item) => (
 					<Card key={item.id} className="flex flex-col">
 						<CardHeader>
 							<CardTitle>{item.displayName}</CardTitle>
