@@ -1,10 +1,9 @@
-import json, datetime, requests
-import re
+import json, datetime, requests, re, os
 from discord.ext import commands
 from dotenv import load_dotenv
-import os
 
-load_dotenv(".env")
+
+load_dotenv("../.env")
 
 bot = commands.Bot(command_prefix='', self_bot=True, chunk_guilds_at_startup=False)
 
