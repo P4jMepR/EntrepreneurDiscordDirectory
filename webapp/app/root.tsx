@@ -42,6 +42,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="en" className={`${isDarkMode ? "dark" : ""}`}>
 			<head>
+				<meta charSet="utf-8" />
+				<meta name="viewport" content="width=device-width, initial-scale=1" />
+				<Meta />
+				<Links />
 				<script
 					// biome-ignore lint/security/noDangerouslySetInnerHtml: dark mode setter to avoid FOUC
 					dangerouslySetInnerHTML={{
@@ -55,10 +59,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
 						`,
 					}}
 				/>
-				<meta charSet="utf-8" />
-				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<Meta />
-				<Links />
 			</head>
 			<body>
 				<div className="h-screen bg-zinc-50 dark:bg-zinc-900 transition-colors">
