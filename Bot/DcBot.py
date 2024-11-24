@@ -73,6 +73,7 @@ async def save_detection_data(data):
         mongo_data = {
             'user_id': data['user_id'],
             'username': data['username'],
+            'display_name': data['display_name'],
             'bio': data['bio'],
             'links': [],
             'date_first_message': datetime.datetime.fromisoformat(data['date_first_message']),
@@ -88,7 +89,7 @@ async def save_detection_data(data):
                 })
         
         users_collection.insert_one(mongo_data)
-        print(f"Saved user data to MongoDB: {data['username']}")
+        print(f"Saved user data to MongoDB: {data['username']} ({data['display_name']})")
     except Exception as e:
         print(f"Failed to save data to MongoDB: {e}")
 
@@ -137,16 +138,22 @@ async def on_message(message):
             except Exception as e:
                 bio = ''
             links = await extract_links(bio)
+            
+            # Get the exact username and global_name from the API response
+            api_username = profile.get('user', {}).get('username')
+            global_name = profile.get('user', {}).get('global_name')
+            
             user_data = {
                 'user_id': message.author.id,
-                'username': str(message.author).split("#")[0],
+                'username': api_username or message.author.name,  # Fallback to discord.py's name if API fails
+                'display_name': global_name or message.author.global_name or message.author.name,  # Use global_name with fallbacks
                 'bio': bio,
                 'links': links,
                 'date_first_message': datetime.datetime.now().isoformat()
             }
             
             await save_detection_data(user_data)
-            print(f"Logged new user: {user_data['username']}")
+            print(f"Logged new user: {user_data['username']} ({user_data['display_name']})")
             print(f"Bio: {user_data['bio']}")
             print(f"Links found: {user_data['links']}")
 

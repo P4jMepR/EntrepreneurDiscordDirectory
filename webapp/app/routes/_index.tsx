@@ -38,6 +38,7 @@ type User = {
 interface MongoUser {
 	_id: ObjectId;
 	username: string;
+	display_name: string;
 	bio: string;
 	links: Array<{
 		url: string;
@@ -180,7 +181,7 @@ export const loader: LoaderFunction = async () => {
 		// Transform MongoDB data to match our frontend format
 		const dbUsers: User[] = users.map((user: MongoUser) => ({
 			id: user._id.toString(),
-			displayName: user.username,
+			displayName: user.display_name,
 			username: user.username,
 			avatar: "",
 			bio: user.bio,
