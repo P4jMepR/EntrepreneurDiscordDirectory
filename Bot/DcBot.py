@@ -70,10 +70,19 @@ async def get_screenshot(url):
 
 async def save_detection_data(data):
     try:
+        # Extract role if display name contains "|"
+        display_name = data['display_name']
+        role = ""
+        if '|' in display_name:
+            parts = display_name.split('|')
+            if len(parts) > 1:
+                role = parts[1].strip()
+        
         mongo_data = {
             'user_id': data['user_id'],
             'username': data['username'],
-            'display_name': data['display_name'],
+            'display_name': display_name,
+            'role': role,
             'bio': data['bio'],
             'links': [],
             'date_first_message': datetime.datetime.fromisoformat(data['date_first_message']),
@@ -89,7 +98,8 @@ async def save_detection_data(data):
                 })
         
         users_collection.insert_one(mongo_data)
-        print(f"Saved user data to MongoDB: {data['username']} ({data['display_name']})")
+        role_info = f" (Role: {role})" if role else ""
+        print(f"Saved user data to MongoDB: {data['username']} ({data['display_name']}){role_info}")
     except Exception as e:
         print(f"Failed to save data to MongoDB: {e}")
 
@@ -139,7 +149,7 @@ async def on_message(message):
                 bio = ''
             links = await extract_links(bio)
             
-            # Get the exact username and global_name from the API response
+
             api_username = profile.get('user', {}).get('username')
             global_name = profile.get('user', {}).get('global_name')
             

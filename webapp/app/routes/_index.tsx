@@ -47,6 +47,22 @@ interface MongoUser {
 	created_at: Date;
 }
 
+// Add this function at the top of the file, after the imports
+function getRelativeDate(date: Date): string {
+	const now = new Date();
+	const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+	const dateToCheck = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+	
+	const diffTime = today.getTime() - dateToCheck.getTime();
+	const diffDays = diffTime / (1000 * 60 * 60 * 24);
+	
+	if (diffDays === 0) return 'Today';
+	if (diffDays === 1) return 'Yesterday';
+	if (diffDays < 7) return `${Math.floor(diffDays)} days ago`;
+	
+	return date.toLocaleDateString();
+}
+
 export const meta: MetaFunction = () => {
 	return [
 		{ title: "Furlough Directory" },
@@ -75,7 +91,7 @@ const mockData = [
 				img: null,
 			},
 		],
-		updatedAt: "today",
+		updatedAt: "Today",
 	},
 	{
 		id: 2,
@@ -100,7 +116,7 @@ const mockData = [
 				img: image_2_zynex,
 			},
 		],
-		updatedAt: "today",
+		updatedAt: "Today",
 	},
 	{
 		id: 4,
@@ -123,7 +139,7 @@ const mockData = [
 				img: null,
 			},
 		],
-		updatedAt: "today",
+		updatedAt: "Today",
 	},
 	{
 		id: 3,
@@ -137,7 +153,7 @@ const mockData = [
 				img: image_1_andmerge,
 			},
 		],
-		updatedAt: "today",
+		updatedAt: "Today",
 	},
 	{
 		id: 5,
@@ -146,7 +162,7 @@ const mockData = [
 		avatar: "",
 		bio: "$197M in ad attributed sales since Nov ‘19",
 		links: [],
-		updatedAt: "today",
+		updatedAt: "Today",
 	},
 	{
 		id: 6,
@@ -159,7 +175,7 @@ const mockData = [
 			"Musician into poetry, & proud Dad of 2 psycho Frenchies\n" +
 			"📌: Houston, TX #713\n",
 		links: [],
-		updatedAt: "today",
+		updatedAt: "Today",
 	},
 ];
 
@@ -191,7 +207,7 @@ export const loader: LoaderFunction = async () => {
 					url: link.url,
 					img: link.screenshot ? `data:image/webp;base64,${link.screenshot}` : null,
 				})) ?? [],
-			updatedAt: user.created_at.toLocaleDateString()
+			updatedAt: getRelativeDate(user.created_at)
 		}));
 
 		// Combine mockData with filtered database data
