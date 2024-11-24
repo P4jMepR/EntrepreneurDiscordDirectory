@@ -2,7 +2,8 @@ import json, datetime, requests, re, os, base64
 from discord.ext import commands
 from dotenv import load_dotenv
 from pymongo import MongoClient
-
+from PIL import Image
+from io import BytesIO
 
 
 load_dotenv("../.env")
@@ -12,8 +13,8 @@ discord_token = os.getenv('DISCORD_TOKEN')
 
 
 
-# MONGO_URI = f"mongodb://{os.getenv('MONGO_USERNAME')}:{os.getenv('MONGO_PASSWORD')}@{os.getenv('MONGO_HOST')}:{os.getenv('MONGO_PORT')}"
-MONGO_URI = "mongodb://localhost:27017"
+MONGO_URI = f"mongodb://{os.getenv('MONGO_USERNAME')}:{os.getenv('MONGO_PASSWORD')}@{os.getenv('MONGO_HOST')}:{os.getenv('MONGO_PORT')}"
+# MONGO_URI = "mongodb://localhost:27017"
 client = MongoClient(MONGO_URI)
 db = client['furlough']
 users_collection = db['users']
@@ -35,10 +36,33 @@ async def get_screenshot(url):
         }
         
         response = requests.post(screenshot_api_url, headers=headers, json=data)
-        if response.status_code == 200:
-            return base64.b64encode(response.content).decode('utf-8')
-        print(f"Screenshot API returned status code: {response.status_code}")
-        return None
+        if response.status_code != 200:
+            print(f"Screenshot API returned status code: {response.status_code}")
+            return None
+
+        response_json = response.json()
+        base64_png = response_json['png'].strip()
+        
+        # Fix formatting if needed
+        missing_padding = len(base64_png) % 4
+        if missing_padding:
+            base64_png += '=' * (4 - missing_padding)
+            
+        try:
+            image_data = base64.b64decode(base64_png)
+            image = Image.open(BytesIO(image_data))
+            
+            # Create WebP
+            webp_buffer = BytesIO()
+            image.save(webp_buffer, format='WEBP', quality=80, optimize=True)
+            webp_base64 = base64.b64encode(webp_buffer.getvalue()).decode('utf-8')
+            
+            return webp_base64
+            
+        except Exception as e:
+            print(f"Error processing image: {e}")
+            return None
+            
     except Exception as e:
         print(f"Screenshot API error: {e}")
         return None
@@ -111,7 +135,6 @@ async def on_message(message):
                       profile.get('guild_member_profile', {}).get('bio') or '')
             except Exception as e:
                 bio = ''
-            bio = "https://quantumhire.io"
             links = await extract_links(bio)
             user_data = {
                 'user_id': message.author.id,
