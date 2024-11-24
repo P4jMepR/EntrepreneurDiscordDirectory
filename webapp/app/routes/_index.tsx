@@ -43,6 +43,7 @@ interface MongoUser {
 		screenshot?: string;
 	}>;
 	created_at: Date;
+	updated_at: Date;
 }
 
 function getRelativeDate(date: Date): string {
@@ -203,7 +204,7 @@ export const loader: LoaderFunction = async () => {
 					url: link.url,
 					img: link.screenshot ? `data:image/webp;base64,${link.screenshot}` : null,
 				})) ?? [],
-			updatedAt: getRelativeDate(user.created_at)
+			updatedAt: getRelativeDate(user.updated_at)
 		}));
 
 		// Combine mockData with filtered database data

@@ -77,6 +77,7 @@ async def save_detection_data(data):
             if len(parts) > 1:
                 role = parts[1].strip()
         
+        current_time = datetime.datetime.utcnow()
         mongo_data = {
             'user_id': data['user_id'],
             'username': data['username'],
@@ -85,7 +86,8 @@ async def save_detection_data(data):
             'bio': data['bio'],
             'links': [],
             'date_first_message': datetime.datetime.fromisoformat(data['date_first_message']),
-            'created_at': datetime.datetime.utcnow()
+            'created_at': current_time,
+            'updated_at': current_time
         }
         
         if data['links']:  # Only try to get screenshot if links exist
