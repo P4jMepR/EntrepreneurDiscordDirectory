@@ -169,7 +169,13 @@ export const loader: LoaderFunction = async () => {
 		await client.connect();
 		
 		const database = client.db('furlough');
-		const users = await database.collection<MongoUser>('users').find({}).toArray();
+		const users = await database.collection<MongoUser>('users').find({
+			'links': { 
+				$elemMatch: { 
+					screenshot: { $exists: true, $ne: null } 
+				}
+			}
+		}).toArray();
 
 		// Transform MongoDB data to match our frontend format
 		const dbUsers: User[] = users.map((user: MongoUser) => ({
@@ -178,14 +184,16 @@ export const loader: LoaderFunction = async () => {
 			username: user.username,
 			avatar: "",
 			bio: user.bio,
-			links: user.links?.map(link => ({
-				url: link.url,
-				img: link.screenshot ? `data:image/webp;base64,${link.screenshot}` : null,
-			})) ?? [],
+			links: user.links
+				?.filter(link => link.screenshot)
+				?.map(link => ({
+					url: link.url,
+					img: link.screenshot ? `data:image/webp;base64,${link.screenshot}` : null,
+				})) ?? [],
 			updatedAt: user.created_at.toLocaleDateString()
 		}));
 
-		// Combine mockData with database data
+		// Combine mockData with filtered database data
 		const allUsers = [...mockData, ...dbUsers];
 		return json({ users: allUsers });
 	} catch (error) {
