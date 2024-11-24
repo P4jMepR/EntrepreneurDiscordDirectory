@@ -1,4 +1,6 @@
-import { Switch } from "~/components/ui/switch";
+import { Moon, Sun } from "lucide-react";
+import * as React from "react";
+import { IconSwitch } from "~/components/ui/iconSwitch";
 
 interface HeaderProps {
 	isDarkMode: boolean;
@@ -7,7 +9,6 @@ interface HeaderProps {
 
 export const Header = ({ isDarkMode, onDarkModeToggle }: HeaderProps) => {
 	const handleDarkModeToggle = () => {
-		console.log({ isDarkMode });
 		onDarkModeToggle(!isDarkMode);
 	};
 
@@ -23,8 +24,14 @@ export const Header = ({ isDarkMode, onDarkModeToggle }: HeaderProps) => {
 						Furlough Directory
 					</span>
 				</div>
-				<div className="flex items-center gap-8">
-					<Switch checked={isDarkMode} onCheckedChange={handleDarkModeToggle} />
+				<div className="flex items-center gap-2">
+					<IconSwitch
+						checked={isDarkMode}
+						onCheckedChange={handleDarkModeToggle}
+					>
+						<Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+						<Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+					</IconSwitch>
 				</div>
 			</header>
 		</div>

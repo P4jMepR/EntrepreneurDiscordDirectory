@@ -25,32 +25,43 @@ export const links: LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+	// const { darkMode } = useRouteLoaderData<typeof clientLoader>("root");
+	// const error = useRouteError();
+
 	const [isDarkMode, setIsDarkMode] = useState(false);
 
 	useEffect(() => {
-		const localSetting = localStorage.theme === "dark";
-		const systemSetting =
-			!("theme" in localStorage) &&
-			window.matchMedia("(prefers-color-scheme: dark)").matches;
-		setIsDarkMode(localSetting || systemSetting);
-	});
+		setIsDarkMode(document.documentElement.classList.contains("dark"));
+	}, []);
 
 	const handleDarkModeToggle = (enabled: boolean) => {
-		console.log({ enabled });
 		setIsDarkMode(enabled);
 		localStorage.theme = isDarkMode ? "light" : "dark";
 	};
 
 	return (
-		<html lang="en">
+		<html lang="en" className={`${isDarkMode ? "dark" : ""}`}>
 			<head>
+				<script
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: dark mode setter to avoid FOUC
+					dangerouslySetInnerHTML={{
+						__html: `
+							document.documentElement.classList.toggle(
+								'dark',
+								localStorage.theme === 'dark' ||
+								(!('theme' in localStorage) && 
+								window.matchMedia('(prefers-color-scheme: dark)').matches)
+							);
+						`,
+					}}
+				/>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 				<Meta />
 				<Links />
 			</head>
-			<body className={`${isDarkMode ? "dark" : ""}`}>
-				<div className="h-screen bg-zinc-50 dark:bg-zinc-900">
+			<body>
+				<div className="h-screen bg-zinc-50 dark:bg-zinc-900 transition-colors">
 					<Header
 						isDarkMode={isDarkMode}
 						onDarkModeToggle={handleDarkModeToggle}
