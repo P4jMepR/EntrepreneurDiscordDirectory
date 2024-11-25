@@ -14,18 +14,31 @@ const MONGO_URI = process.env.MONGO_USERNAME && process.env.MONGO_PASSWORD
 
 let db: MongoClient;
 
+async function connectDB() {
+  try {
+    const client = new MongoClient(MONGO_URI);
+    await client.connect();
+    await client.db().command({ ping: 1 }); // Test connection
+    console.log("Successfully connected to MongoDB.");
+    return client;
+  } catch (error) {
+    console.error("Failed to connect to MongoDB:", error);
+    throw error;
+  }
+}
+
 declare global {
   var __db: MongoClient | undefined;
 }
 
-// This is needed because in development we want to restart
-// the server with every change, but we don't want to create
-// a new connection to the DB with every change.
+// This is needed because in development we don't want to restart
+// the server with every change, but we want to make sure we don't
+// create a new connection to the DB with every change either.
 if (process.env.NODE_ENV === "production") {
-  db = new MongoClient(MONGO_URI);
+  db = await connectDB();
 } else {
   if (!global.__db) {
-    global.__db = new MongoClient(MONGO_URI);
+    global.__db = await connectDB();
   }
   db = global.__db;
 }
