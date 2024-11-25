@@ -17,6 +17,7 @@ import image_2_zynex from "~/assets/images/screens/2_zynex.png";
 import image_3_getitright from "~/assets/images/screens/3_getitright.png";
 import image_4_goodwatch from "~/assets/images/screens/4_goodwatch.png";
 import { db } from "~/utils/db.server";
+import { ErrorBoundary } from "~/components/ErrorBoundary";
 
 type Link = {
 	url: string;
@@ -270,3 +271,5 @@ export const Index = () => {
 };
 
 export default Index;
+
+export { ErrorBoundary };
