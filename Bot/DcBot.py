@@ -124,11 +124,9 @@ def has_user_been_logged(user_id):
         return False
 
 async def extract_links(text):
-    # Updated pattern to capture full profile URLs
     url_pattern = r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+(?:/[-\w.~!$&\'()*+,;=:@%]*)*/?'
     links = re.findall(url_pattern, text)
     
-    # Filter out URLs from ignored domains
     filtered_links = []
     for link in links:
         should_include = True
