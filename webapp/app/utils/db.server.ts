@@ -18,16 +18,31 @@ declare global {
   var __db: MongoClient | undefined;
 }
 
-// This is needed because in development we want to restart
-// the server with every change, but we don't want to create
-// a new connection to the DB with every change.
-if (process.env.NODE_ENV === "production") {
-  db = new MongoClient(MONGO_URI);
-} else {
+async function getClient() {
+  if (process.env.NODE_ENV === "production") {
+    if (!db) {
+      db = new MongoClient(MONGO_URI);
+      await db.connect();
+    }
+    return db;
+  }
+
   if (!global.__db) {
     global.__db = new MongoClient(MONGO_URI);
+    await global.__db.connect();
   }
-  db = global.__db;
+  return global.__db;
 }
 
-export { db }; 
+// Initialize the client without top-level await
+const client = new MongoClient(MONGO_URI);
+
+// Connect when the client is used
+export async function connectDb() {
+  if (!db) {
+    db = await getClient();
+  }
+  return db;
+}
+
+export { client as db }; 

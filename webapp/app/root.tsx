@@ -36,7 +36,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 	const handleDarkModeToggle = (enabled: boolean) => {
 		setIsDarkMode(enabled);
-		localStorage.theme = isDarkMode ? "light" : "dark";
+		document.documentElement.classList.toggle('dark', enabled);
+		localStorage.theme = enabled ? 'dark' : 'light';
 	};
 
 	return (
