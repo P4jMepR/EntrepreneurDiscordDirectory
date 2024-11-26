@@ -1,0 +1,22 @@
+name: Generate Release Notes Video
+on:
+  release:
+    types: [published]
+
+jobs:
+  create-video:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Relano - Automated 'What's new' Videos
+        uses: Just-Moh-it/Relano@v1.1.1
+        with:
+          # Required parameters
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          release-tag: ${{ github.event.release.tag_name }}
+          
+          # Optional parameters (these are the defaults)
+          # voice: en-US-JennyNeural
+          # background-music: https://example.com/music.mp3
+          # output-path: video.mp4
