@@ -9,7 +9,7 @@ const __dirname = dirname(__filename);
 dotenv.config({ path: resolve(__dirname, '../../../.env') });
 
 const MONGO_URI = process.env.MONGO_USERNAME && process.env.MONGO_PASSWORD
-  ? `mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_HOST || 'localhost'}:${process.env.MONGO_PORT || '27117'}/furlough`
+  ? `mongodb://${encodeURIComponent(process.env.MONGO_USERNAME)}:${encodeURIComponent(process.env.MONGO_PASSWORD)}@${process.env.MONGO_HOST || 'localhost'}:${process.env.MONGO_PORT || '27117'}/furlough?authSource=admin`
   : 'mongodb://localhost:27017/furlough';
 
 let db: MongoClient;
@@ -34,10 +34,8 @@ async function getClient() {
   return global.__db;
 }
 
-// Initialize the client without top-level await
 const client = new MongoClient(MONGO_URI);
 
-// Connect when the client is used
 export async function connectDb() {
   if (!db) {
     db = await getClient();
