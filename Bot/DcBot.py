@@ -21,7 +21,14 @@ users_collection = db['users']
 
 bot = commands.Bot(command_prefix='', self_bot=True, chunk_guilds_at_startup=False)
 
-ALLOWED_CHANNEL_IDS = [1259935421194960968, 1268207657207206010] # First - #Furlough main / general, Second - #Quantum's bot-testing
+ALLOWED_CHANNEL_IDS = [
+    1259935421194960968,  # general (newbies)
+    788802610219712522,   # general (need lvl 10)
+    929447307647279194,   # feedback
+    1020323359940165712,  # discussions
+    894653994335608893,   # showcase-startup
+    1268207657207206010,  # quantum's bot-testing
+]
 
 IGNORED_DOMAINS = {
     'linkedin.com',
