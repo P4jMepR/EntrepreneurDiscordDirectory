@@ -6,6 +6,7 @@ import {
 	Scripts,
 	ScrollRestoration,
 } from "@remix-run/react";
+import { Analytics } from "@vercel/analytics/remix";
 
 import "./tailwind.css";
 import { useEffect, useState } from "react";
@@ -36,7 +37,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 	const handleDarkModeToggle = (enabled: boolean) => {
 		setIsDarkMode(enabled);
-		localStorage.theme = isDarkMode ? "light" : "dark";
+		document.documentElement.classList.toggle('dark', enabled);
+		localStorage.theme = enabled ? 'dark' : 'light';
 	};
 
 	return (
@@ -70,6 +72,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				</div>
 				<ScrollRestoration />
 				<Scripts />
+				<Analytics />
 			</body>
 		</html>
 	);

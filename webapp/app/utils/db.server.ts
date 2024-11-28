@@ -9,7 +9,7 @@ const __dirname = dirname(__filename);
 dotenv.config({ path: resolve(__dirname, '../../../.env') });
 
 const MONGO_URI = process.env.MONGO_USERNAME && process.env.MONGO_PASSWORD
-  ? `mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_HOST || 'localhost'}:${process.env.MONGO_PORT || '27117'}/furlough`
+  ? `mongodb://${encodeURIComponent(process.env.MONGO_USERNAME)}:${encodeURIComponent(process.env.MONGO_PASSWORD)}@${process.env.MONGO_HOST || 'localhost'}:${process.env.MONGO_PORT || '27117'}/furlough?authSource=admin`
   : 'mongodb://localhost:27017/furlough';
 
 let db: MongoClient;
@@ -18,16 +18,29 @@ declare global {
   var __db: MongoClient | undefined;
 }
 
-// This is needed because in development we want to restart
-// the server with every change, but we don't want to create
-// a new connection to the DB with every change.
-if (process.env.NODE_ENV === "production") {
-  db = new MongoClient(MONGO_URI);
-} else {
+async function getClient() {
+  if (process.env.NODE_ENV === "production") {
+    if (!db) {
+      db = new MongoClient(MONGO_URI);
+      await db.connect();
+    }
+    return db;
+  }
+
   if (!global.__db) {
     global.__db = new MongoClient(MONGO_URI);
+    await global.__db.connect();
   }
-  db = global.__db;
+  return global.__db;
 }
 
-export { db }; 
+const client = new MongoClient(MONGO_URI);
+
+export async function connectDb() {
+  if (!db) {
+    db = await getClient();
+  }
+  return db;
+}
+
+export { client as db }; 

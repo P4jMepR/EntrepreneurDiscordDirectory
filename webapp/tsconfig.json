@@ -27,6 +27,14 @@
 		},
 
 		// Vite takes care of building everything, not tsc.
-		"noEmit": true
+		"noEmit": true,
+
+		// Add these new options
+		"noUncheckedIndexedAccess": true,  // Adds undefined to any un-declared field in an index signature
+		"noImplicitOverride": true,        // Ensure overridden methods are marked with override
+		"allowUnreachableCode": false,     // Error on unreachable code
+		"noFallthroughCasesInSwitch": true,// Error on fall-through cases in switch
+		"exactOptionalPropertyTypes": true, // More precise optional property types
+		"useUnknownInCatchVariables": true  // Catch clause variables are 'unknown' instead of 'any'
 	}
 }
